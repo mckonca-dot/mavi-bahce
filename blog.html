@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.jsdelivr.net;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com;
+    font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
+    img-src 'self' data: https://images.unsplash.com;
+    connect-src 'self' https://firestore.googleapis.com https://www.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog & Tarifler | Mavi Bahçe</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div id="loading-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:9999; align-items:center; justify-content:center; flex-direction:column;">
+        <div class="loader-icon" style="font-size:3rem; color:var(--accent-color); margin-bottom:15px;">
+            <i class="fas fa-circle-notch fa-spin"></i>
+        </div>
+        <h3 style="color:var(--primary-color);">Yükleniyor...</h3>
+    </div>
+    <nav class="navbar">
+        <a href="index.html" class="logo">Mavi Bahçe</a>
+        <ul class="nav-links">
+            <li><a href="index.html">Ana Sayfa</a></li>
+            <li><a href="index.html#products">Ürünler</a></li>
+            <li><a href="blog.html" class="btn-nav" style="background:var(--accent-color); color:white;">Blog</a></li>
+            <li><a href="siparislerim.html">Siparişlerim</a></li>
+            <li><a href="#" id="user-menu-btn" onclick="handleUserMenu()"><i class="fas fa-user"></i> Giriş Yap</a></li>
+            <li><a href="sepet.html" class="btn-nav">Sepetim (<span id="cart-count">0</span>)</a></li>
+        </ul>
+        <div class="hamburger"><i class="fas fa-bars"></i></div>
+    </nav>
+
+    <header class="hero" style="height: 40vh; background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1590429994979-f14d114c004a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');">
+        <div class="hero-container" style="justify-content:center; text-align:center;">
+            <div>
+                <h1 style="font-size: 3rem;">Mavi Bahçe Blog</h1>
+                <p style="font-size: 1.2rem;">Sağlıklı tarifler, saklama ipuçları ve çiftlikten haberler.</p>
+            </div>
+        </div>
+    </header>
+
+    <section class="section">
+        <div class="container">
+            <div id="blog-container" class="blog-grid">
+                <p style="text-align:center; width:100%;">Yazılar yükleniyor...</p>
+            </div>
+        </div>
+    </section>
+
+    <div id="blog-modal" class="modal-overlay">
+        <div class="modal-box" style="max-width: 800px; width:90%;">
+            <span class="close-modal" onclick="document.getElementById('blog-modal').style.display='none'">&times;</span>
+            <div class="modal-header"><h2 id="modal-blog-title">...</h2></div>
+            <img id="modal-blog-img" src="" style="width:100%; height:300px; object-fit:cover; border-radius:10px; margin-bottom:20px;">
+            <div id="modal-blog-content" style="line-height:1.8; color:#444;">...</div>
+        </div>
+    </div>
+    
+    <div id="auth-modal" class="modal-overlay">
+        <div class="modal-box auth-box">
+            <span class="close-modal" onclick="closeAuthModal()">&times;</span>
+            <div class="auth-tabs">
+                <button id="tab-login" class="active" onclick="switchTab('login')">Giriş Yap</button>
+            </div>
+            <form id="form-login" onsubmit="event.preventDefault(); loginUser();">
+                <div class="form-group"><label>E-Posta</label><input type="email" id="login-email" required></div>
+                <div class="form-group"><label>Şifre</label><input type="password" id="login-pass" required></div>
+                <button type="submit" class="btn-main full-width">Giriş Yap</button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2025 Mavi Bahçe.</p>
+    </footer>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

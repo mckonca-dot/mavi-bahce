@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.jsdelivr.net;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com;
+    font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
+    img-src 'self' data: https://images.unsplash.com;
+    connect-src 'self' https://firestore.googleapis.com https://www.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Mavi Bahçe | Doğal ve Organik Yaban Mersini</title>
+    <meta name="description" content="Mavi Bahçe ile dalından sofranıza %100 doğal, organik ve taze yaban mersini siparişi verin. Taze, kurutulmuş ve reçel çeşitlerimizle hizmetinizdeyiz.">
+    <meta name="keywords" content="yaban mersini, organik meyve, mavi bahçe, doğal reçel, kurutulmuş meyve, sağlıklı beslenme">
+    <meta name="author" content="Mavi Bahçe">
+    <meta name="robots" content="index, follow">
+    
+    <meta property="og:title" content="Mavi Bahçe | Doğal Yaban Mersini">
+    <meta property="og:description" content="Doğanın kalbinden gelen mor mucize. Hemen sipariş verin, tazelik kapınıza gelsin.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1498557850523-fd3d118b962e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80">
+    <meta property="og:url" content="https://mavibahce.com">
+    <meta property="og:type" content="website">
+
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div id="cart-notification"></div>
+
+    <div id="loading-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:9999; align-items:center; justify-content:center; flex-direction:column;">
+        <div class="loader-icon" style="font-size:3rem; color:var(--accent-color); margin-bottom:15px;">
+            <i class="fas fa-circle-notch fa-spin"></i>
+        </div>
+        <h3 style="color:var(--primary-color);">Yükleniyor...</h3>
+    </div>
+
+    <div id="auth-modal" class="modal-overlay">
+        <div class="modal-box auth-box">
+            <span class="close-modal" onclick="closeAuthModal()">&times;</span>
+            <div class="auth-tabs">
+                <button id="tab-login" class="active" onclick="switchTab('login')">Giriş Yap</button>
+                <button id="tab-register" onclick="switchTab('register')">Kayıt Ol</button>
+            </div>
+            <form id="form-login" onsubmit="event.preventDefault(); loginUser();">
+                <div class="form-group"><label>E-Posta</label><input type="email" id="login-email" required></div>
+                <div class="form-group"><label>Şifre</label><input type="password" id="login-pass" required></div>
+                <button type="submit" class="btn-main full-width">Giriş Yap</button>
+            </form>
+            <form id="form-register" style="display:none;" onsubmit="event.preventDefault(); registerUser();">
+                <div class="form-group"><label>Ad Soyad</label><input type="text" id="reg-name" required></div>
+                <div class="form-group"><label>Telefon</label><input type="tel" id="reg-phone" required></div>
+                <div class="form-group"><label>Adres</label><textarea id="reg-address" required></textarea></div>
+                <div class="form-group"><label>E-Posta</label><input type="email" id="reg-email" required></div>
+                <div class="form-group"><label>Şifre</label><input type="password" id="reg-pass" required></div>
+                <button type="submit" class="btn-main full-width">Kayıt Ol ve Giriş Yap</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="profile-modal" class="modal-overlay">
+        <div class="modal-box">
+            <span class="close-modal" onclick="closeProfileModal()">&times;</span>
+            <div class="modal-header"><h2>Hesap Bilgilerim</h2></div>
+            <div class="profile-content">
+                <p><strong>Ad Soyad:</strong> <span id="p-name">...</span></p>
+                <p><strong>Telefon:</strong> <span id="p-phone">...</span></p>
+                <p><strong>E-Posta:</strong> <span id="p-email">...</span></p>
+                <p><strong>Adres:</strong> <span id="p-address">...</span></p>
+            </div>
+            <button onclick="logoutUser()" class="btn-main full-width" style="background-color: #e74c3c; margin-top: 20px;">Çıkış Yap</button>
+        </div>
+    </div>
+
+    <div id="product-detail-modal" class="modal-overlay">
+        <div class="modal-box" style="max-width: 800px; width: 95%; max-height: 90vh; overflow-y: auto;">
+            <span class="close-modal" onclick="document.getElementById('product-detail-modal').style.display='none'">&times;</span>
+            
+            <div class="product-detail-content">
+                <div class="detail-row" style="display: flex; gap: 20px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 250px;">
+                        <img id="detail-img" src="" alt="Ürün Detay" style="width: 100%; border-radius: 10px; object-fit: cover;">
+                    </div>
+                    <div style="flex: 1.5;">
+                        <h2 id="detail-title" style="color: var(--primary-color);"></h2>
+                        <div class="detail-rating">
+                            <i class="fas fa-star" style="color: gold;"></i>
+                            <span id="detail-avg-score">0.0</span> 
+                            <small>(<span id="detail-review-count">0</span> Değerlendirme)</small>
+                        </div>
+                        <h3 id="detail-price" style="color: var(--accent-color); margin: 10px 0;"></h3>
+                        <p id="detail-desc" style="color: #666; margin-bottom: 20px;"></p>
+                        <button id="detail-add-btn" class="btn-main">Sepete Ekle</button>
+                    </div>
+                </div>
+
+                <hr style="margin: 30px 0; border: 0; border-top: 1px solid #eee;">
+
+                <div class="reviews-section">
+                    <h3>Müşteri Değerlendirmeleri</h3>
+                    
+                    <div class="add-review-box" style="background: #f9f9f9; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                        <h4>Yorum Yap</h4>
+                        <div class="star-rating-input" style="margin-bottom: 10px;">
+                            <i class="far fa-star star-input" data-value="1"></i>
+                            <i class="far fa-star star-input" data-value="2"></i>
+                            <i class="far fa-star star-input" data-value="3"></i>
+                            <i class="far fa-star star-input" data-value="4"></i>
+                            <i class="far fa-star star-input" data-value="5"></i>
+                            <input type="hidden" id="review-rating" value="0">
+                        </div>
+                        <textarea id="review-text" placeholder="Ürün hakkındaki düşünceleriniz (Sadece satın alanlar yorum yapabilir)..." style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd;"></textarea>
+                        <button onclick="submitReview()" class="btn-nav" style="margin-top: 10px;">Gönder</button>
+                    </div>
+
+                    <div id="reviews-list">
+                        <p>Yükleniyor...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar">
+        <a href="index.html" class="logo">Mavi Bahçe</a>
+        <ul class="nav-links">
+            <li><a href="#home">Ana Sayfa</a></li>
+            <li><a href="#about">Biz Kimiz?</a></li>
+            <li><a href="#products">Ürünler</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="siparislerim.html">Siparişlerim</a></li>
+            <li><a href="#" id="user-menu-btn" onclick="handleUserMenu()"><i class="fas fa-user"></i> Giriş Yap</a></li>
+            <li><a href="sepet.html" class="btn-nav">Sepetim (<span id="cart-count">0</span>)</a></li>
+        </ul>
+        <div class="hamburger"><i class="fas fa-bars"></i></div>
+    </nav>
+
+    <header id="home" class="hero">
+        <div class="hero-container">
+            <div class="hero-left fade-in">
+                <h1 id="hero-title-display">Doğadan Sofranıza <br> <span class="highlight">Mor Mucize</span></h1>
+            </div>
+            <div class="hero-right fade-in">
+                <p id="hero-desc-display">Kendi bahçemizde, tamamen organik yöntemlerle yetiştirdiğimiz taze yaban mersinlerini keşfedin.</p>
+                <a href="#products" class="btn-main">Ürünleri İncele</a>
+            </div>
+        </div>
+    </header>
+
+    <section id="about" class="section">
+        <div class="container">
+            <div class="row">
+                <div class="col-img scroll-reveal">
+                    <img src="https://images.unsplash.com/photo-1498557850523-fd3d118b962e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Yaban Mersini">
+                </div>
+                <div class="col-text scroll-reveal">
+                    <h2>Neden Mavi Bahçe?</h2>
+                    <p>Toprağın en bereketli halini, özenle işliyoruz. Yaban mersinlerimiz katkı maddesi olmadan, güneş ve doğal su kaynaklarıyla büyüyor.</p>
+                    <ul class="features">
+                        <li><i class="fas fa-check-circle"></i> %100 Organik Gübre</li>
+                        <li><i class="fas fa-check-circle"></i> El ile Hasat</li>
+                        <li><i class="fas fa-check-circle"></i> Aynı Gün Kargo</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="products" class="section bg-light">
+        <div class="container">
+            <h2 class="section-title scroll-reveal">Hasatımız</h2>
+            
+            <div class="filter-container" style="margin-bottom: 30px; display: flex; flex-direction: column; gap: 15px; align-items: center;">
+                <div class="search-box" style="position: relative; width: 100%; max-width: 500px;">
+                    <input type="text" id="product-search" placeholder="Ürün ara..." onkeyup="filterProducts()" 
+                           style="width: 100%; padding: 12px 20px; border-radius: 30px; border: 1px solid #ddd; outline: none; padding-right: 40px;">
+                    <i class="fas fa-search" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #aaa;"></i>
+                </div>
+
+                <div class="category-buttons" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                    <button class="filter-btn active" onclick="filterByCategory('all', this)">Tümü</button>
+                    <button class="filter-btn" onclick="filterByCategory('Taze', this)">Taze</button>
+                    <button class="filter-btn" onclick="filterByCategory('Kurutulmuş', this)">Kurutulmuş</button>
+                    <button class="filter-btn" onclick="filterByCategory('Reçel', this)">Reçel & Marmelat</button>
+                    <button class="filter-btn" onclick="filterByCategory('İçecek', this)">İçecekler</button>
+                    <button class="filter-btn" onclick="filterByCategory('Dondurulmuş', this)">Dondurulmuş</button>
+                </div>
+            </div>
+
+            <div class="product-grid" id="dynamic-products">
+                <p style="text-align:center; width:100%; color:#666;">Ürünler yükleniyor...</p>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contact" class="footer">
+        <div class="container center-text">
+            <h2>Bizimle İletişime Geçin</h2>
+            <div class="socials">
+                <a href="#" id="link-instagram" target="_blank"><i class="fab fa-instagram"></i></a>
+                <a href="#" id="link-whatsapp" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                <a href="mailto:info@mavibahce.com"><i class="far fa-envelope"></i></a>
+            </div>
+            <p class="copyright">&copy; 2025 Mavi Bahçe Tüm hakları saklıdır.</p>
+        </div>
+    </footer>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

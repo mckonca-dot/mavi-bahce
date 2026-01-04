@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sepetim | Mavi Bahçe</title> <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    
+    <div id="loading-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:9999; align-items:center; justify-content:center; flex-direction:column;">
+        <div class="loader-icon" style="font-size:3rem; color:var(--accent-color); margin-bottom:15px;">
+            <i class="fas fa-circle-notch fa-spin"></i>
+        </div>
+        <h3 style="color:var(--primary-color);">Yükleniyor...</h3>
+    </div>
+
+    <div id="profile-modal" class="modal-overlay">
+        <div class="modal-box">
+            <span class="close-modal" onclick="closeProfileModal()">&times;</span>
+            <div class="modal-header"><h2>Hesap Bilgilerim</h2></div>
+            <div class="profile-content">
+                <p><strong>Ad Soyad:</strong> <span id="p-name">Yükleniyor...</span></p>
+                <p><strong>Telefon:</strong> <span id="p-phone">...</span></p>
+                <p><strong>E-Posta:</strong> <span id="p-email">...</span></p>
+                <p><strong>Adres:</strong> <span id="p-address">...</span></p>
+            </div>
+            <button onclick="logoutUser()" class="btn-main full-width" style="background-color: #e74c3c; margin-top: 20px;">Çıkış Yap</button>
+        </div>
+    </div>
+
+    <div id="auth-modal" class="modal-overlay">
+        <div class="modal-box auth-box">
+            <span class="close-modal" onclick="closeAuthModal()">&times;</span>
+            <div class="auth-tabs">
+                <button id="tab-login" class="active" onclick="switchTab('login')">Giriş Yap</button>
+                <button id="tab-register" onclick="switchTab('register')">Kayıt Ol</button>
+            </div>
+            <form id="form-login" onsubmit="event.preventDefault(); loginUser();">
+                <div class="form-group"><label>E-Posta</label><input type="email" id="login-email" required></div>
+                <div class="form-group"><label>Şifre</label><input type="password" id="login-pass" required></div>
+                <button type="submit" class="btn-main full-width">Giriş Yap</button>
+            </form>
+            <form id="form-register" style="display:none;" onsubmit="event.preventDefault(); registerUser();">
+                <div class="form-group"><label>Ad Soyad</label><input type="text" id="reg-name" required></div>
+                <div class="form-group"><label>Telefon</label><input type="tel" id="reg-phone" required></div>
+                <div class="form-group"><label>Adres</label><textarea id="reg-address" required></textarea></div>
+                <div class="form-group"><label>E-Posta</label><input type="email" id="reg-email" required></div>
+                <div class="form-group"><label>Şifre</label><input type="password" id="reg-pass" required></div>
+                <button type="submit" class="btn-main full-width">Kayıt Ol ve Giriş Yap</button>
+            </form>
+        </div>
+    </div>
+
+    <nav class="navbar">
+        <a href="index.html" class="logo">Mavi Bahçe</a>
+        
+        <ul class="nav-links">
+            <li><a href="index.html">Ana Sayfa</a></li>
+            <li><a href="index.html#products">Ürünlere Dön</a></li>
+            <li><a href="siparislerim.html">Siparişlerim</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="#" id="user-menu-btn" onclick="handleUserMenu()"><i class="fas fa-user"></i> Giriş Yap</a></li>
+            <li><a href="sepet.html" class="btn-nav">Sepetim (<span id="cart-count">0</span>)</a></li>
+        </ul>
+
+        <div class="hamburger"><i class="fas fa-bars"></i></div>
+    </nav>
+
+    <section class="section" style="margin-top: 80px; min-height: 60vh;">
+        <div class="container">
+            <h2 class="section-title">Sepetiniz</h2>
+            
+            <div class="cart-container">
+                <div class="table-responsive">
+                    <table class="cart-table">
+                        <thead>
+                            <tr>
+                                <th>Ürün</th>
+                                <th>Adet</th>
+                                <th>Toplam</th>
+                                <th>Sil</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cart-items-wrapper"></tbody>
+                    </table> </div>
+
+                <div class="cart-summary-box">
+                    
+                    <div class="coupon-area" style="margin-bottom: 20px; display:flex; gap:10px; justify-content: flex-end;">
+                        <input type="text" id="coupon-input" placeholder="İndirim Kodu" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        <button onclick="applyCoupon()" class="btn-nav" style="font-size:0.9rem;">Uygula</button>
+                    </div>
+                    
+                    <p style="font-size: 1.1rem; color: #666;">Ara Toplam: <span id="cart-subtotal">0</span> TL</p>
+                    <p style="font-size: 1.1rem; color: green; font-weight: bold; display: none;" id="discount-display">İndirim: -<span id="discount-amount">0</span> TL</p>
+                    <h3>Genel Toplam: <span id="cart-total">0</span> TL</h3>
+                    
+                    <div class="cart-actions">
+                        <button onclick="clearCart()" class="btn-cart" style="background: #e74c3c; color: white; border: none;">Sepeti Boşalt</button>
+                        <button onclick="openPaymentModal()" class="btn-main">Güvenli Ödeme Yap <i class="fas fa-lock"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>&copy; 2025 Mavi Bahçe.</p>
+    </footer>
+
+    <div id="payment-modal" class="modal-overlay">
+        <div class="modal-box" style="max-width: 400px;">
+            <span class="close-modal" onclick="closePaymentModal()">&times;</span>
+            
+            <div class="payment-header" style="text-align:center; margin-bottom:20px;">
+                <h3 style="color:var(--primary-color);">Kart Bilgileri</h3>
+                <div style="font-size:2rem; margin:10px 0;">
+                    <i class="fab fa-cc-visa" style="color:#1a1f71;"></i>
+                    <i class="fab fa-cc-mastercard" style="color:#eb001b;"></i>
+                </div>
+                <p style="font-size:0.9rem; color:#666;">Güvenli Ödeme Altyapısı</p>
+            </div>
+
+            <form id="payment-form" onsubmit="event.preventDefault(); processPayment();">
+                <div class="form-group">
+                    <label>Kart Sahibi Ad Soyad</label>
+                    <input type="text" id="card-name" placeholder="Ad Soyad" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Kart Numarası</label>
+                    <input type="text" id="card-number" placeholder="0000 0000 0000 0000" maxlength="19" required oninput="formatCardNumber(this)">
+                </div>
+
+                <div style="display:flex; gap:15px;">
+                    <div class="form-group" style="flex:1;">
+                        <label>Ay / Yıl</label>
+                        <input type="text" id="card-expiry" placeholder="AA/YY" maxlength="5" required oninput="formatExpiry(this)">
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label>CVC</label>
+                        <input type="text" id="card-cvc" placeholder="123" maxlength="3" required>
+                    </div>
+                </div>
+
+                <div style="background:#f9fafb; padding:10px; border-radius:8px; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;">
+                    <span>Ödenecek Tutar:</span>
+                    <strong style="font-size:1.2rem; color:var(--primary-color);" id="payment-total-display">0 TL</strong>
+                </div>
+
+                <button type="submit" class="btn-main full-width" id="btn-pay-now">
+                    <span id="pay-text">Ödemeyi Tamamla</span>
+                    <span id="pay-loader" style="display:none;"><i class="fas fa-spinner fa-spin"></i> İşleniyor...</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
