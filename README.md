@@ -2,9 +2,9 @@
 
 Bu proje, doğal ve organik yaban mersini ürünlerinin satışı için geliştirilmiş modern, responsive (mobil uyumlu) bir e-ticaret web uygulamasıdır. Kullanıcılar ürünleri inceleyip sepete ekleyebilir, üye olabilir ve sipariş verebilirler. Yöneticiler ise gelişmiş admin paneli üzerinden tüm süreci yönetebilir.
 
-![Proje Önizlemesi](https://via.placeholder.com/1000x500?text=Mavi+Bahce+Ekran+Goruntusu)
 
 <img width="1919" height="910" alt="Mavi Bahce" src="https://github.com/user-attachments/assets/50ccb3c0-596b-464a-9c0c-8d954773d959" />
+<img width="1917" height="888" alt="Ekran görüntüsü 2026-01-04 131352" src="https://github.com/user-attachments/assets/ebe8bcfb-4290-4a9d-924e-15db37346bbd" />
 
 ## 🚀 Özellikler
 
